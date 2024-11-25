@@ -1,0 +1,29 @@
+docker_image: "quay.io/condaforge/linux-anvil-comp7:latest"
+env_name: "apv2-test"
+conda_env_file: "apv2-test.yml"
+conda_binary: "mamba"
+python_version: ""
+pkg_name: ""
+pkg_version: ""
+# extra_packages: "nsls2-collection=2021C2.0=*_0 tmate mamba"
+extra_packages: "mamba"
+channels: "-c conda-forge"
+#extra_cmd_before_install: "yum install mesa-libGL mesa-libGL-devel -y"
+extra_cmd_before_install: "yum install mesa-libGL -y"
+extra_cmd_after_install: ""
+docker_upload:
+  - ghcr
+  - dockerhub
+  # - quay
+zenodo_upload: "no"
+zenodo_metadata:
+  metadata:
+    title: "NSLS-II Accelerator Physics conda environment"
+    upload_type: "software"
+    description: "NSLS-II Accelerator Physics conda environment"
+    version: 2021-2.0
+    creators:
+      - name: Hidaka, Yoshiteru
+        affiliation: "Brookhaven National Laboratory"
+      - name: Rakitin, Maksim
+        affiliation: "Brookhaven National Laboratory"
