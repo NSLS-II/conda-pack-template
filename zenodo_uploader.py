@@ -9,11 +9,14 @@ import requests
 import yaml
 from tabulate import tabulate
 
+ZENODO_SERVER = "https://zenodo.org/api"
+ZENODO_SANDBOX_SERVER = "https://sandbox.zenodo.org/api"
+
 
 def search_for_deposition(
     title,
     owner=None,
-    zenodo_server="https://sandbox.zenodo.org/api/",
+    zenodo_server=ZENODO_SANDBOX_SERVER,
     token=None,
     showindex=True,
 ):
@@ -36,7 +39,7 @@ def search_for_deposition(
         "status": "published",
         "all_versions": True,
     }
-    url = f"{zenodo_server}deposit/depositions?{urlencode(params)}"
+    url = f"{zenodo_server}/deposit/depositions?{urlencode(params)}"
     print(f"Search URL: {url}\n")
 
     try:
@@ -134,16 +137,19 @@ def search_for_deposition(
 
 
 def create_new_version(
-    deposition_id, token, zenodo_server="https://sandbox.zenodo.org/api/"
+    deposition_id,
+    token,
+    zenodo_server=ZENODO_SANDBOX_SERVER,
 ):
     print(f"Creating new version of deposition: {deposition_id} ...")
     url = (
-        f"{zenodo_server}deposit/depositions/{deposition_id}/"
+        f"{zenodo_server}/deposit/depositions/{deposition_id}/"
         f"actions/newversion"
     )
     r = requests.post(
         url,
         params={"access_token": token},
+        headers={"Content-Type": "application/json"},
     )
     r.raise_for_status()
 
@@ -154,7 +160,7 @@ def create_new_version(
     print(f"New version created with id: {new_deposition_id}!")
 
     r = requests.get(
-        f"{zenodo_server}deposit/depositions/{new_deposition_id}",
+        f"{zenodo_server}/deposit/depositions/{new_deposition_id}",
         params={"access_token": token},
     )
     r.raise_for_status()
@@ -170,10 +176,11 @@ def create_new_version(
 
 
 def create_new_deposition(
-    token, zenodo_server="https://sandbox.zenodo.org/api/"
+    token,
+    zenodo_server=ZENODO_SANDBOX_SERVER,
 ):
     print("Creating new deposition...")
-    url = f"{zenodo_server}deposit/depositions"
+    url = f"{zenodo_server}/deposit/depositions"
     r = requests.post(
         url,
         params={"access_token": token},
@@ -200,11 +207,11 @@ def upload_to_zenodo(
     filebase,
     env_name,
     token,
-    zenodo_server="https://sandbox.zenodo.org/api/",
+    zenodo_server=ZENODO_SANDBOX_SERVER,
 ):
     if filename.endswith(".tar.gz"):
         response = requests.get(
-            f"{zenodo_server}deposit/depositions/{deposition_id}",
+            f"{zenodo_server}/deposit/depositions/{deposition_id}",
             params={"access_token": token},
             headers={"Content-Type": "application/json"},
         )
@@ -241,12 +248,12 @@ def add_meta_data(
     deposition_id,
     meta_data,
     token,
-    zenodo_server="https://sandbox.zenodo.org/api/",
+    zenodo_server=ZENODO_SANDBOX_SERVER,
 ):
     print(f"Uploading metadata for {filename} ...")
 
     r = requests.put(
-        f"{zenodo_server}deposit/depositions/{deposition_id}",
+        f"{zenodo_server}/deposit/depositions/{deposition_id}",
         params={"access_token": token},
         data=json.dumps(meta_data),
         headers={"Content-Type": "application/json"},
@@ -258,18 +265,18 @@ def add_meta_data(
 def delete_deposition_files(
     deposition_id,
     token,
-    zenodo_server="https://sandbox.zenodo.org/api/",
+    zenodo_server=ZENODO_SANDBOX_SERVER,
 ):
     print("Deleting old files...")
     r = requests.get(
-        f"{zenodo_server}deposit/depositions/{deposition_id}/files",
+        f"{zenodo_server}/deposit/depositions/{deposition_id}/files",
         params={"access_token": token},
     )
     r.raise_for_status()
     files = r.json()
     for file in files:
         r = requests.delete(
-            f"{zenodo_server}deposit/depositions/"
+            f"{zenodo_server}/deposit/depositions/"
             f"{deposition_id}/files/{file['id']}",
             params={"access_token": token},
         )
@@ -280,11 +287,11 @@ def delete_deposition_files(
 def publish_deposition(
     deposition_id,
     token,
-    zenodo_server="https://sandbox.zenodo.org/api/",
+    zenodo_server=ZENODO_SANDBOX_SERVER,
 ):
     print(f"Publishing deposition: {deposition_id}...")
     r = requests.post(
-        f"{zenodo_server}deposit/depositions/{deposition_id}/actions/publish",
+        f"{zenodo_server}/deposit/depositions/{deposition_id}/actions/publish",
         params={"access_token": token},
     )
     if "errors" in r.json():
